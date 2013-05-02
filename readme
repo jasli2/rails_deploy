@@ -1,1 +1,1 @@
-rails new project_name -T -d mysql -m rails3_app_template/rails3template.rb
+rails new project_name -T --old-style-hash -d mysql -m rails3_app_template/rails3template.rb
