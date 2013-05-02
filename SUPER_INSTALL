@@ -1,0 +1,147 @@
+#!/bin/bash
+
+LOG_FILE=/tmp/Install_LOG.txt
+
+YES=yes
+SUPER_INSTALL="sudo apt-get install"
+SUPER_ADD_SOURCE="sudo apt-add-repository"
+SUPER_UPDATE_SOURCE="sudo apt-get install update"
+SUPER_CP="sudo cp"
+SUPER_CHMODE="sudo chmod"
+
+NECESSARY_LIB1=(libreadline6-dev libssl-dev libyaml-dev libsqlite3-dev \
+                sqlite3 libxml2-dev libxslt-dev autoconf libgdbm-dev \
+                libncurses5-dev automake bison pkg-config \
+                libffi-dev libcurl4-gnutls-dev openssh-server)
+
+NECESSARY_LIB2=(build-essential openssl libreadline6 curl git-core\
+                zlib1g zlib1g-dev libc6-dev ncurses-dev libtool \
+                subversion pkg-config hutu)
+
+NECESSARY_LIB=("${NECESSARY_LIB1[@]}" "${NECESSARY_LIB2[@]}")
+
+Install_CHECK() {
+ result=$1
+ data=$2
+ cmd=$3
+ if [ $result -ne 0 ];then
+    echo "
+		${data} install failed
+	" >> $LOG_FILE 
+ else
+    if [ "${cmd}" ];then
+        $cmd
+    fi
+ fi
+}
+
+Install_LIB() {
+    echo "
+	##########################################
+	<----Install Necessary System Library---->
+	##########################################
+    "
+        
+    for var in ${NECESSARY_LIB[@]};do
+        $YES|$SUPER_INSTALL $var 
+        Install_CHECK $? $var
+    done
+}
+
+Install_RVM() {
+   echo "
+	#########################################
+		<---- Install RVM ---->
+	#########################################
+    "
+   cd $HOME
+   curl -L get.rvm.io | bash -s stable
+   Install_CHECK $? "RVM" "source ${HOME}/.rvm/scripts/rvm"
+   rvm autolibs enable
+   rvm requirements
+   Install_CHECK $? "RVM REQUIREMENTS"
+}
+
+Install_JAVA_Runtime() {
+   echo "
+	#########################################
+	    <---- Install JAVA Runtime ---->
+	########################################
+    "
+   $YES|$SUPER_INSTALL python-software-properties
+   Install_CHECK $? "python"
+   $YES|$SUPER_ADD_SOURCE ppa:chris-lea/node.js
+   Install_CHECK $? "ppa:chris-lea/node.js"
+   $YES|$SUPER_INSTALL nodejs
+   Install_CHECK $? "nodejs"
+}
+
+Install_RUBY() {
+    echo "
+	########################################
+	       <---- Install RUBY ---->
+	########################################
+    "
+    rvm list known
+    Install_CHECK $? "rvm"
+    rvm install 1.9.3
+    Install_CHECK $? "RUBY"
+    rvm use 1.9.3 --default
+    Install_CHECK $? "set RUBY"
+    rvm use ruby-1.9.3-p392@rails3.2 --create
+    rvm --rvmrc ruby-1.9.3-p392@rails3.2
+    Install_CHECK $? "ruby-1.9.3-p392@rails3.2"
+    echo "intall: --no-rdoc --no-ri" >> $HOME/.gemrc
+    echo "update: --no-rdoc --no-ri" >> $HOME/.gemrc
+}
+
+Install_RAILS() {
+    echo "
+	########################################
+	        <---- Install RAILS ---->
+    ########################################
+    "
+    nodoc="--no-rdoc --no-ri"
+    gem -v
+    echo "--test----gem----result----${?}--------"
+    Install_CHECK $? "gem is not good"
+    gem install rails $nodoc
+    Install_CHECK $? "RAILS"
+    gem install passenger $nodoc
+    Install_CHECK $? "passenger"
+}
+
+Install_NGINX() {
+    echo "
+	########################################
+	       <---- Install NGINX ---->
+    ########################################
+    "
+    rvmsudo passenger-install-nginx-module
+    $Install_CHECK $? "passenger-install-nginx-module"
+    wget https://raw.github.com/gist/1548664/53f6d7ccb9dfc82a50c95e9f6e2e60dc59e4c2fb/nginx
+    $SUPER_CP nginx /etc/init.d/
+    $SUPER_CHMODE +x /etc/init.d/nginx
+    sudo update-rc.d nginx defaults
+}
+
+Install_MYSQL() {
+    $YES|$SUPER_INSTALL mysql-server libmysqlclient-dev
+    #fixme :config MYSQL 
+    echo "
+        You can set some  configs about MySQL at /etc/mysql/my.cnf 
+        "
+}
+
+Install_START() {
+    Install_LIB
+    Install_RVM
+    Install_JAVA_Runtime
+    Install_RUBY
+    Install_NGINX
+    Install_MYSQL 
+    Install_RAILS
+}
+
+rm $LOG_FILE
+Install_START
