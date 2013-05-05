@@ -56,7 +56,8 @@ Install_RVM() {
     "
    cd $HOME
    curl -L get.rvm.io | bash -s stable
-   Install_CHECK $? "RVM" "source ${HOME}/.rvm/scripts/rvm"
+   Install_CHECK $? "RVM"
+   source ${HOME}/.rvm/scripts/rvm
    rvm autolibs enable
    rvm requirements
    Install_CHECK $? "RVM REQUIREMENTS"
@@ -89,7 +90,6 @@ Install_RUBY() {
     rvm use 1.9.3 --default
     Install_CHECK $? "set RUBY"
     rvm use ruby-1.9.3-p392@rails3.2 --create
-    rvm --rvmrc ruby-1.9.3-p392@rails3.2
     Install_CHECK $? "ruby-1.9.3-p392@rails3.2"
     echo "intall: --no-rdoc --no-ri" >> $HOME/.gemrc
     echo "update: --no-rdoc --no-ri" >> $HOME/.gemrc
@@ -101,14 +101,17 @@ Install_RAILS() {
 	        <---- Install RAILS ---->
     ########################################
     "
-    nodoc="--no-rdoc --no-ri"
-    gem -v
-    echo "--test----gem----result----${?}--------"
+    
+    nodoc="--no-rdoc --no-ri" 
+    source ~/.rvm/scripts/rvm 
+    gem -v 
     Install_CHECK $? "gem is not good"
-    gem install rails $nodoc
-    Install_CHECK $? "RAILS"
-    gem install passenger $nodoc
+    gem install rails $nodoc 
+    Install_CHECK $? "RAILS" 
+    gem install passenger $nodoc 
     Install_CHECK $? "passenger"
+    
+    rvm use ruby-1.9.3-p392@rails3.2 --default
 }
 
 Install_NGINX() {
@@ -135,12 +138,12 @@ Install_MYSQL() {
 
 Install_START() {
     Install_LIB
-    Install_RVM
-    Install_JAVA_Runtime
-    Install_RUBY
-    Install_NGINX
     Install_MYSQL 
+    Install_JAVA_Runtime
+    Install_RVM
+    Install_RUBY
     Install_RAILS
+    Install_NGINX
 }
 
 rm $LOG_FILE
