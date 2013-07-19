@@ -16,7 +16,7 @@ NECESSARY_LIB1=(libreadline6-dev libssl-dev libyaml-dev libsqlite3-dev \
 
 NECESSARY_LIB2=(build-essential openssl libreadline6 curl git-core\
                 zlib1g zlib1g-dev libc6-dev ncurses-dev libtool \
-                subversion pkg-config hutu)
+                subversion pkg-config )
 
 NECESSARY_LIB=("${NECESSARY_LIB1[@]}" "${NECESSARY_LIB2[@]}")
 
@@ -85,9 +85,9 @@ Install_RUBY() {
     "
     rvm list known
     Install_CHECK $? "rvm"
-    rvm install 1.9.3
+    rvm install ruby-1.9.3-p392
     Install_CHECK $? "RUBY"
-    rvm use 1.9.3 --default
+    rvm use ruby-1.9.3-p392 --default
     Install_CHECK $? "set RUBY"
     rvm use ruby-1.9.3-p392@rails3.2 --create
     Install_CHECK $? "ruby-1.9.3-p392@rails3.2"
@@ -105,10 +105,11 @@ Install_RAILS() {
     nodoc="--no-rdoc --no-ri" 
     source ~/.rvm/scripts/rvm 
     gem -v 
+    echo "--test----gem----result----${?}--------"
     Install_CHECK $? "gem is not good"
-    gem install rails $nodoc 
+    gem install rails -v 3.2.13 $nodoc
     Install_CHECK $? "RAILS" 
-    gem install passenger $nodoc 
+    gem install passenger $nodoc
     Install_CHECK $? "passenger"
     
     rvm use ruby-1.9.3-p392@rails3.2 --default
