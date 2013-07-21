@@ -16,7 +16,7 @@ NECESSARY_LIB1=(libreadline6-dev libssl-dev libyaml-dev libsqlite3-dev \
 
 NECESSARY_LIB2=(build-essential openssl libreadline6 curl git-core\
                 zlib1g zlib1g-dev libc6-dev ncurses-dev libtool \
-                subversion pkg-config )
+                subversion pkg-config imagemagick libmagickwand-dev)
 
 NECESSARY_LIB=("${NECESSARY_LIB1[@]}" "${NECESSARY_LIB2[@]}")
 
