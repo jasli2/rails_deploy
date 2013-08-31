@@ -8,6 +8,8 @@ namespace :deploy do
 
     desc "cause Passenger to initiate a restart"
     task :restart do
+       run "cd #{current_path}; git checkout master; git branch -D deploy; git pull"
+       run "cd #{current_path}; git checkout -b deploy"
        run "touch #{current_path}/tmp/restart.txt"
     end
   
@@ -17,5 +19,4 @@ namespace :deploy do
     end
 
   end
-
 end
