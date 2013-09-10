@@ -3,6 +3,7 @@ require "bundler/capistrano"
 load "deploy/capistrano_database_yml"
 load "deploy/capistrano_base"
 load "deploy/capistrano_resque"
+load "deploy/capistrano_nginx"
 
 set :user, "XXX"
 set :password, "XXXX"
